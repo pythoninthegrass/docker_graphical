@@ -2,34 +2,63 @@
 
 ## Docker container with Firefox, SSH server, and RDP support
 
-This container gives you a minimal GUI environment based on LXDE on top of Ubuntu, with some niceties thrown in. `supervisord` is used to control startup processes. A syslog daemon logs everything to Docker's logs. Cron is installed as well.
+![mvp](img/desktop.png)
 
-NOTE: You must use `--init` in order to have a stable running container. Otherwise, dead processes will not be reaped and you will eventually run out of resources.
+### Massive shoutout to the OG who created this lovely container: [@arktronic](https://github.com/arktronic) via [Doing terrible things with Docker | trycatch.dev](https://trycatch.dev/2020/09/08/doing-terrible-things-with-docker/)
 
-To access remotely, either SSH or RDP into the container. **The username and password, by default, are both `admin`.**
+> This container gives you a minimal GUI environment based on LXDE on top of Ubuntu, with some niceties thrown in. `supervisord` is used to control startup processes. A syslog daemon logs everything to Docker's logs. Cron is installed as well.
+> 
+> NOTE: You must use `--init` in order to have a stable running container. Otherwise, dead processes will not be reaped and you will eventually run out of resources.
+> 
+> To access remotely, either SSH or RDP into the container. **The username and password, by default, are both `admin`.**
 
-Get started:
+## Quickstart:
+* Start container with standard RDP and SSH ports exposed
+    ```bash
+    # start container with RDP port and n shared memory
+    docker run -d -p 3389:3389 --init --shm-size=2g arktronic/ubuntu-graphical
+    ```
+* Connect via RDP
+  * Open MS Remote Desktop
+  * Create a new connection
+  * Set `hostname` as `localhost` (i.e., `127.0.0.1`)
+  * Create new credentials
+    * Default is 
+      * **User**: `admin`
+      * **Pass**: `admin`
 
-<!-- TODO: replace container registry/image -->
-```
-docker run -d -p 3389:3389 --init --shm-size=2g arktronic/ubuntu-graphical
-```
+<img src="img/rdp.png" width="50%">
+
+* Connect via SSH
+    ```bash
+    # TODO
+    ```
+
+## TODO
+* [Issues](https://github.com/pythoninthegrass/docker_graphical/issues)
+* Finish [Quickstart](README.md#quickstart)
+  * Currently doesn't work with default `22/tcp` port or `172.17.0.*` IP
+  * Might need to explicitly add bridge network
+* Update [Dockerfile](Dockerfile)
+  * Bump OS to 22.04
+  * `heredoc` vs. `RUN`
+* Add `compose.yml`
+* Replace container registry/image
+  * Add CI to automate uploads
+* [Pre-commit hooks](https://pre-commit.com/)
+* Add `ansible` playbook for Ubuntu
 
 ## Versions
-
 ### 1.0
-
-- Original release, based on Ubuntu 18.04
-- **CAUTION: uses a hard-coded RDP certificate!**
-
+* Original release, based on Ubuntu 18.04
+* **CAUTION: uses a hard-coded RDP certificate!**
 ### 2.0
-
-- Based on Ubuntu 20.04
-- Includes support for audio over RDP (somewhat buggy; help is appreciated)
-- Generates new SSH host key and RDP certificate on first run
-
+* Based on Ubuntu 20.04
+* Includes support for audio over RDP (somewhat buggy; help is appreciated)
+* Generates new SSH host key and RDP certificate on first run
 ### 2.1
-
-- Reduce number of intermediate images
-- Fix manpages
-- Install `bash-completion` and `command-not-found`
+* Reduce number of intermediate images
+* Fix manpages
+* Install `bash-completion` and `command-not-found`
+### 2.2
+* TBD (`cat` git history)
