@@ -47,7 +47,7 @@ COPY --from=xrdp-pulse-builder /root/module-xrdp-source.so /var/lib/xrdp-pulseau
 COPY ./clean-launch.sh /usr/bin/clean-launch.sh
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 
-RUN chmod +x /usr/bin/clean-launch.sh \
+RUN chmod +x /usr/bin/clean_launch.sh \
  && mkdir -p /var/run/dbus \
  && echo "autospawn = no" >> /etc/pulse/client.conf \
  && echo "[Desktop Entry]\nType=Application\nExec=pulseaudio --daemonize" > /etc/xdg/autostart/pulseaudio-xrdp.desktop \
