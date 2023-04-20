@@ -30,7 +30,7 @@ jobs:
       matrix:
         platforms: [ linux/amd64, linux/arm64 ]
         os: [ ubuntu-latest ]
-    runs-on: [ platforms.os ]
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: read
       packages: write
