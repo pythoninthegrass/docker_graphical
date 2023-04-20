@@ -16,7 +16,7 @@
 * Start container with standard RDP and SSH ports exposed
     ```bash
     # start container with RDP port and n shared memory
-    docker run -d -p 3389:3389 --init --shm-size=2g arktronic/ubuntu-graphical
+    docker run -d -p 3389:3389 --init --shm-size=2g ghcr.io/pythoninthegrass/docker_graphical:latest
     ```
 * Connect via RDP
   * Open MS Remote Desktop
@@ -43,8 +43,8 @@
   * Bump OS to 22.04
   * `heredoc` vs. `RUN`
 * Add `compose.yml`
-* Replace container registry/image
-  * Add CI to automate uploads
+* ~~Replace container registry/image~~
+  * ~~Add CI to automate uploads~~
 * [Pre-commit hooks](https://pre-commit.com/)
 * Add `ansible` playbook for Ubuntu
 
