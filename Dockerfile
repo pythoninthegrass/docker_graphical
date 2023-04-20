@@ -55,4 +55,8 @@ RUN chmod +x /usr/bin/clean_launch.sh \
 EXPOSE 22/tcp
 EXPOSE 3389/tcp
 
+LABEL org.opencontainers.image.source=https://github.com/pythoninthegrass/docker_graphical
+LABEL org.opencontainers.image.description="Docker container with Firefox, SSH server, and RDP support"
+LABEL org.opencontainers.image.licenses=Unlicense
+
 CMD ["/usr/bin/clean_launch.sh"]
