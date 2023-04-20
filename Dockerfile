@@ -16,8 +16,6 @@ RUN git clone https://github.com/neutrinolabs/pulseaudio-module-xrdp.git xrdp-mo
  && make install \
  && cp $(pkg-config --variable=modlibexecdir libpulse)/module-xrdp-* /root/
 
-# ---------------
-
 FROM ubuntu:20.04
 
 ENV TERM xterm
@@ -44,7 +42,7 @@ RUN rm /etc/dpkg/dpkg.cfg.d/excludes \
 
 COPY --from=xrdp-pulse-builder /root/module-xrdp-sink.so /var/lib/xrdp-pulseaudio-installer/
 COPY --from=xrdp-pulse-builder /root/module-xrdp-source.so /var/lib/xrdp-pulseaudio-installer/
-COPY ./clean-launch.sh /usr/bin/clean-launch.sh
+COPY ./clean_launch.sh /usr/bin/clean_launch.sh
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 
 RUN chmod +x /usr/bin/clean_launch.sh \
@@ -57,4 +55,4 @@ RUN chmod +x /usr/bin/clean_launch.sh \
 EXPOSE 22/tcp
 EXPOSE 3389/tcp
 
-CMD ["/usr/bin/clean-launch.sh"]
+CMD ["/usr/bin/clean_launch.sh"]
