@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  app:
+    image: ghcr.io/pythoninthegrass/docker_graphical:latest
+    container_name: docker_graphical
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 22:22/tcp
+      - 3389:3389/tcp
+    init: true
+    shm_size: 2g
+    # TODO: fails to connect to xrdp if volumes are mounted
+    # volumes:
+    #   - ./data/ssh:/etc/dropbear
+    #   - ./data/xrdp:/etc/xrdp
+
+networks:
+  default:
+    driver: bridge
