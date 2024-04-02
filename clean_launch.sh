@@ -5,6 +5,8 @@
 rm -rf /var/run/sudo/* /tmp/* /var/tmp/*
 rm -f /run/* 2>/dev/null
 
+# TODO: use host ssh / xrdp keys instead of regenerating them
+
 if [[ ! -d "/etc/dropbear" ]]; then
 	mkdir /etc/dropbear
 	/usr/bin/dropbearkey -t ecdsa -f /etc/dropbear/dropbear_ecdsa_host_key
