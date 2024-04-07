@@ -181,10 +181,10 @@ COPY --from=lizardbyte/sunshine:v0.22.2-ubuntu-20.04 /sunshine.deb /usr/src/suns
 RUN echo "**** Update apt database ****" \
     && apt-get update \
     && echo "**** Install Sunshine requirements ****" \
-    && apt-get install -y \
+    && apt-get install -y --no-install-recommends \
         va-driver-all \
     && echo "**** Install Sunshine ****" \
-    && apt-get install -y \
+    && apt-get install -y --no-install-recommends \
         /usr/src/sunshine.deb \
     && echo "**** Section cleanup ****" \
     && apt-get clean autoclean -y \
@@ -240,14 +240,20 @@ RUN chmod +x /usr/bin/entrypoint.sh \
     && mv /usr/bin/lxpolkit /usr/bin/lxpolkit.disabled \
     && rm -rf /var/lib/apt/lists
 
-ENV USER ${USER_NAME:-abc}
+ARG USER_NAME=${USER_NAME:-appuser}
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USER_NAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USER_NAME
+
 ENV HOME /home/${USER}
 
-RUN useradd -m -g users -G sudo \
-    -p $(openssl passwd -1 ${USER}) \
-    -s /bin/bash ${USER}
+# Run the commands that are causing permission issues
+RUN mkdir -p ${HOME} /etc/dropbear \
+    && chown -R ${USER}:users ${HOME} /etc/dropbear
 
-USER ${USER}
+USER ${USER_NAME}
 
 EXPOSE 22/tcp
 EXPOSE 3389/tcp
