@@ -137,10 +137,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         /var/tmp/* \
         /tmp/*
 
-RUN update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8 \
-    && useradd -m -g users -G sudo \
-        -p $(openssl passwd -1 admin) \
-        -s /bin/bash admin
+RUN update-locale LANG=en_US.UTF-8 LC_CTYPE=en_US.UTF-8
 
 RUN echo "**** Configure flatpak ****" \
     && flatpak remote-add flathub https://flathub.org/repo/flathub.flatpakrepo \
@@ -243,11 +240,17 @@ RUN chmod +x /usr/bin/entrypoint.sh \
     && mv /usr/bin/lxpolkit /usr/bin/lxpolkit.disabled \
     && rm -rf /var/lib/apt/lists
 
-EXPOSE 22/tcp
-EXPOSE 3389/tcp
-
 ENV USER ${USER_NAME:-abc}
 ENV HOME /home/${USER}
+
+RUN useradd -m -g users -G sudo \
+    -p $(openssl passwd -1 ${USER}) \
+    -s /bin/bash ${USER}
+
+USER ${USER}
+
+EXPOSE 22/tcp
+EXPOSE 3389/tcp
 
 CMD ["/usr/bin/entrypoint.sh"]
 
