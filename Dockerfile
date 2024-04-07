@@ -246,6 +246,9 @@ RUN chmod +x /usr/bin/entrypoint.sh \
 EXPOSE 22/tcp
 EXPOSE 3389/tcp
 
+ENV USER ${USER_NAME:-abc}
+ENV HOME /home/${USER}
+
 CMD ["/usr/bin/entrypoint.sh"]
 
 LABEL org.opencontainers.image.source=https://github.com/pythoninthegrass/docker_graphical
