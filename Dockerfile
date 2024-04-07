@@ -229,16 +229,12 @@ RUN echo "**** Install dumb-init ****" \
 
 COPY --from=base /root/module-xrdp-sink.so /var/lib/xrdp-pulseaudio-installer/
 COPY --from=base /root/module-xrdp-source.so /var/lib/xrdp-pulseaudio-installer/
-COPY ./entrypoint.sh /usr/bin/entrypoint.sh
+COPY ./bootstrap.sh /usr/bin/bootstrap.sh
 COPY ./init/ /etc/cont-init.d/
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 
-RUN chmod +x /usr/bin/entrypoint.sh \
-    && mkdir -p /var/run/dbus \
-    && printf "autospawn = no" >> /etc/pulse/client.conf \
-    && printf "[Desktop Entry]\nType=Application\nExec=pulseaudio --daemonize" > /etc/xdg/autostart/pulseaudio-xrdp.desktop \
-    && mv /usr/bin/lxpolkit /usr/bin/lxpolkit.disabled \
-    && rm -rf /var/lib/apt/lists
+RUN chmod +x /usr/bin/bootstrap.sh \
+    ./usr/bin/bootstrap.sh
 
 ARG USER_NAME=${USER_NAME:-appuser}
 ARG USER_UID=1000
@@ -246,16 +242,20 @@ ARG USER_GID=$USER_UID
 ENV HOME /home/${USER_NAME}
 
 RUN groupadd --gid $USER_GID $USER_NAME \
-&& useradd --uid $USER_UID --gid $USER_GID -m $USER_NAME \
-&& echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
-&& chmod 0440 /etc/sudoers.d/$USER_NAME
+    && useradd --uid $USER_UID \
+        --gid $USER_GID \
+        -m -d $HOME $USER_NAME \
+    && echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
+    && chmod 0440 /etc/sudoers.d/$USER_NAME
 
 USER ${USER_NAME}
 
 EXPOSE 22/tcp
 EXPOSE 3389/tcp
 
-CMD ["/usr/bin/entrypoint.sh"]
+# CMD ["/usr/bin/entrypoint.sh"]
+ENTRYPOINT [ "/usr/bin/supervisord" ]
+CMD ["-c", "/etc/supervisor/supervisord.conf"]
 
 LABEL org.opencontainers.image.source=https://github.com/pythoninthegrass/docker_graphical
 LABEL org.opencontainers.image.description="Docker container with Firefox, SSH server, and RDP support"

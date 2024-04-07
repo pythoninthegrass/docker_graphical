@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# shellcheck disable=SC2164
+# shellcheck disable=SC1090,SC2164
 
 print_header() {
     # Magenta
@@ -40,6 +40,12 @@ if [[ ! -d "/etc/dropbear" ]]; then
 	/usr/bin/dropbearkey -t ecdsa -f /etc/dropbear/dropbear_ecdsa_host_key
 fi
 
+mkdir -p /var/run/dbus \
+&& printf "autospawn = no" >> /etc/pulse/client.conf \
+&& printf "[Desktop Entry]\nType=Application\nExec=pulseaudio --daemonize" > /etc/xdg/autostart/pulseaudio-xrdp.desktop \
+&& mv /usr/bin/lxpolkit /usr/bin/lxpolkit.disabled \
+&& rm -rf /var/lib/apt/lists
+
 if [[ ! -f "/etc/xrdp/rsakeys.ini" ]]; then
 	/usr/bin/xrdp-keygen xrdp auto 2048
 	pushd /etc/xrdp &>/dev/null
@@ -47,4 +53,4 @@ if [[ ! -f "/etc/xrdp/rsakeys.ini" ]]; then
 	openssl req -new -newkey rsa:2048 -days 365 -nodes -x509 -subj "/C=XX/ST=XX/L=XX/O=XX/CN=$(hostname)" -keyout key.pem -out cert.pem
 fi
 
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+exit 0
