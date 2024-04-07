@@ -7,7 +7,8 @@ env:
   BUILD: "{{.TLD}}/bin/build.sh"
   COMPOSE_FILE: "{{.TLD}}/docker-compose.yml"
   DOCKERFILE: "{{.TLD}}/Dockerfile"
-  PLATFORM: "linux/amd64"
+  PLATFORM:
+    sh: echo "${PLATFORM:-linux/amd64}"
 
 tasks:
   net:
@@ -31,12 +32,9 @@ tasks:
     cmds:
       - |
         depot build --platform {{.PLATFORM}} \
-          --tag ${REGISTRY}/${REGISTRY_USER}/{{.APP}}:${TAG} \
+          --tag "{{.REGISTRY}}/{{.REGISTRY_USER}}/{{.SERVICE}}:{{.TAG}}" \
           --push \
           --load .
-    vars:
-      DEPOT_PROJECT_ID:
-        sh: echo "${DEPOT_PROJECT_ID?DEPOT_PROJECT_ID is required}"
 
   build:
     desc: "Build the docker image"
@@ -49,8 +47,8 @@ tasks:
     cmds:
       - |
         echo "{{.REGISTRY_PASS}}" | docker login \
-          -u {{.USER_NAME}} \
-          --password-stdin {{.REGISTRY_URL}}
+          -u {{.REGISTRY_USER}} \
+          --password-stdin {{.REGISTRY}}
     run: once
     silent: true
 
