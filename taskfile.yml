@@ -1,0 +1,56 @@
+version: "3.0"
+
+set: ['e', 'u', 'pipefail']
+shopt: ['globstar']
+
+dotenv: ['.env']
+
+env:
+  TLD:
+    sh: git rev-parse --show-toplevel
+  APP:
+    sh: echo "${APP_NAME:-docker-graphical}"
+  SERVICE:
+    sh: echo "${SERVICE:-{{.APP}}}"
+  TAG:
+    sh: echo "${TAG:-latest}"
+  UNAME:
+    sh: "uname -s"
+
+vars:
+
+includes:
+  docker:
+    taskfile: ./taskfiles/docker.yml
+    aliases: ["docker"]
+
+tasks:
+  print:
+    - |
+      echo -e "TLD:\t\t$TLD"
+      echo -e "APP:\t\t{{.APP}}"
+      echo -e "BUILD:\t\t{{.BUILD}}"
+      echo -e "COMPOSE_FILE:\t{{.COMPOSE_FILE}}"
+      echo -e "DOCKERFILE:\t{{.DOCKERFILE}}"
+      echo -e "PLATFORM:\t{{.PLATFORM}}"
+      echo -e "REGISTRY:\t$REGISTRY_USER"
+      echo -e "SERVICE:\t{{.SERVICE}}"
+      echo -e "TAG:\t\t{{.TAG}}"
+      echo -e "USER_NAME:\t$USER_NAME"
+      echo -e "UNAME:\t\t$UNAME"
+
+  default:
+    desc: "Default task"
+    cmds:
+      - task --list
+
+  install:
+    desc: "Install project dependencies"
+    cmds:
+      - |
+        make install
+
+  pre-commit:
+    desc: "Run pre-commit hooks"
+    cmds:
+      - pre-commit run --all-files

@@ -1,6 +1,6 @@
 services:
   app:
-    # image: ghcr.io/pythoninthegrass/docker_graphical:latest
+    image: ghcr.io/pythoninthegrass/docker_graphical:dev
     container_name: docker-graphical
     build:
       context: .
