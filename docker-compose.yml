@@ -1,4 +1,4 @@
-version: '3'
+version: "3.9"
 
 services:
   app:
@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 22:22/tcp
+      - 2222:22/tcp
       - 3389:3389/tcp
     init: true
     shm_size: 2g
