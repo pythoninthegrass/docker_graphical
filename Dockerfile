@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.6
 
-FROM ubuntu:20.04 AS builder
+FROM ubuntu:20.04 AS base
 
 WORKDIR /root
 
@@ -14,9 +14,12 @@ RUN apt-get update \
         dpkg-dev \
         git \
         libpulse-dev \
-        pulseaudio \
     && apt-get build-dep -y pulseaudio \
-    && apt-get source pulseaudio
+    && apt-get source pulseaudio \
+    && rm -rf \
+        /var/lib/apt/lists/* \
+        /var/tmp/* \
+        /tmp/*
 
 RUN cd pulseaudio-* \
     && ./configure
@@ -29,6 +32,7 @@ RUN git clone https://github.com/neutrinolabs/pulseaudio-module-xrdp.git xrdp-mo
     && make install \
     && cp $(pkg-config --variable=modlibexecdir libpulse)/module-xrdp-* /root/
 
+# TODO: setup more stages
 FROM ubuntu:20.04 as runner
 
 ENV TERM xterm
@@ -61,6 +65,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     firefox \
     flatpak \
     fonts-vlgothic \
+    git \
     gstreamer1.0-alsa \
     gstreamer1.0-gl \
     gstreamer1.0-gtk3 \
@@ -94,7 +99,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lxde-core \
     lxde-icon-theme \
     lxterminal \
-    man-db \
     mlocate \
     msttcorefonts \
     net-tools \
@@ -176,7 +180,7 @@ RUN echo "**** Update apt database ****" \
         /tmp/*
 
 # Install Sunshine
-COPY --from=lizardbyte/sunshine:v0.22.0-debian-bookworm /sunshine.deb /usr/src/sunshine.deb
+COPY --from=lizardbyte/sunshine:v0.22.2-ubuntu-20.04 /sunshine.deb /usr/src/sunshine.deb
 RUN echo "**** Update apt database ****" \
     && apt-get update \
     && echo "**** Install Sunshine requirements ****" \
@@ -213,20 +217,21 @@ RUN echo "**** Update apt database ****" \
 ARG DUMB_INIT_VERSION=1.2.5
 ARG DUMB_UDEV_VERSION=64d1427
 RUN echo "**** Install dumb-init ****" \
-    && wget --no-check-certificate --no-cookies --quiet \
+    && wget --no-check-certificate \
+        --no-cookies \
+        --quiet \
         -O /usr/bin/dumb-init \
         https://github.com/Yelp/dumb-init/releases/download/v${DUMB_INIT_VERSION}/dumb-init_${DUMB_INIT_VERSION}_x86_64 \
     && chmod +x /usr/bin/dumb-init \
     && echo "**** Install dumb-udev ****" \
     && python3 -m pip install \
-        --break-system-packages \
         --pre \
         --upgrade \
         --no-cache-dir \
         git+https://github.com/Steam-Headless/dumb-udev.git@${DUMB_UDEV_VERSION}
 
-COPY --from=builder /root/module-xrdp-sink.so /var/lib/xrdp-pulseaudio-installer/
-COPY --from=builder /root/module-xrdp-source.so /var/lib/xrdp-pulseaudio-installer/
+COPY --from=base /root/module-xrdp-sink.so /var/lib/xrdp-pulseaudio-installer/
+COPY --from=base /root/module-xrdp-source.so /var/lib/xrdp-pulseaudio-installer/
 COPY ./entrypoint.sh /usr/bin/entrypoint.sh
 COPY ./init/ /etc/cont-init.d/
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
