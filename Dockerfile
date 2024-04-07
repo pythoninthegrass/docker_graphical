@@ -236,6 +236,7 @@ COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 RUN bash /usr/bin/bootstrap.sh
 
 ARG USER_NAME=${USER_NAME:-appuser}
+ENV USER ${USER_NAME}
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 ENV HOME /home/${USER_NAME}
