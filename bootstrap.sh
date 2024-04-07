@@ -72,14 +72,13 @@ for dev in "${device_nodes[@]}"; do
     fi
 done
 
-
 print_step_header "Setting umask to ${UMASK}";
 umask ${UMASK}
 
 # Setup services log path
 print_step_header "Setting ownership of all log files in '${USER_HOME}/.cache/log'"
 mkdir -p "${USER_HOME}/.cache/log"
-chown -R ${PUID}:${PGID} "${USER_HOME}/.cache/log"
+chown -R ${USER_UID}:${USER_GID} "${USER_HOME}/.cache/log"
 
 # TODO: use host ssh / xrdp keys instead of regenerating them
 

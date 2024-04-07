@@ -1,13 +1,11 @@
 services:
   app:
-    image: ghcr.io/pythoninthegrass/docker_graphical:dev
+    # image: ghcr.io/pythoninthegrass/docker_graphical:dev
     container_name: docker-graphical
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 2222:22/tcp
-      - 3389:3389/tcp
+    network_mode: host
     init: true
     shm_size: 2g
     # GPU PASSTHROUGH
@@ -19,7 +17,6 @@ services:
           devices:
             - capabilities: [gpu]
               device_ids: ["${NVIDIA_VISIBLE_DEVICES}"]
-    network_mode: host
     hostname: ${NAME:-localhost}
     extra_hosts:
       - "${NAME:-localhost}:127.0.0.1"

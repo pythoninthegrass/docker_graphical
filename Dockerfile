@@ -194,8 +194,9 @@ COPY ./init/ /etc/cont-init.d/
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 
 # create a non-root user
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
+ARG USER_UID=${USER_UID:-1000}
+ENV USER_UID=$USER_UID
+ENV USER_GID=$USER_UID
 ARG USER_NAME=${USER_NAME:-"appuser"}
 ENV USER_NAME=${USER_NAME}
 ENV USER_HOME=/home/${USER_NAME}
@@ -217,10 +218,11 @@ ENV ENABLE_EVDEV_INPUTS=${ENABLE_EVDEV_INPUTS:-true}
 RUN bash /usr/bin/bootstrap.sh
 
 WORKDIR ${USER_HOME}
-USER ${USER_NAME}
 
 EXPOSE 22/tcp
 EXPOSE 3389/tcp
+
+USER ${USER_NAME}
 
 ENTRYPOINT [ "/usr/bin/supervisord" ]
 CMD ["-c", "/etc/supervisor/supervisord.conf"]
