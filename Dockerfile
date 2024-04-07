@@ -233,20 +233,22 @@ COPY ./bootstrap.sh /usr/bin/bootstrap.sh
 COPY ./init/ /etc/cont-init.d/
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 
-RUN bash /usr/bin/bootstrap.sh
-
-ARG USER_NAME=${USER_NAME:-appuser}
-ENV USER ${USER_NAME}
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-ENV HOME /home/${USER_NAME}
+ARG USER_NAME=${USER_NAME:-"appuser"}
+ENV USER_NAME=${USER_NAME}
+ENV USER_HOME=/home/${USER_NAME}
+ENV SUNSHINE_USER=${SUNSHINE_USER:-"admin"}
+ENV SUNSHINE_PASS=${SUNSHINE_PASS:-"admin"}
 
 RUN groupadd --gid $USER_GID $USER_NAME \
-    && useradd --uid $USER_UID \
-        --gid $USER_GID \
-        -m -d $HOME $USER_NAME \
-    && echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
-    && chmod 0440 /etc/sudoers.d/$USER_NAME
+&& useradd --uid $USER_UID \
+--gid $USER_GID \
+-m -d $HOME $USER_NAME \
+&& echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
+&& chmod 0440 /etc/sudoers.d/$USER_NAME
+
+RUN bash /usr/bin/bootstrap.sh
 
 USER ${USER_NAME}
 

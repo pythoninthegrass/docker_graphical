@@ -25,18 +25,10 @@ services:
       - "${NAME:-localhost}:127.0.0.1"
     environment:
       - TZ=${TZ:-Etc/UTC}
-      - USER_LOCALES=${USER_LOCALES:-en_US.UTF-8 UTF-8}
-      - DISPLAY=${DISPLAY:-:55}
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
       - UMASK=${UMASK:-000}
-      - USER_HOME=${USER_HOME:-$HOME}
-      - USER_PASSWORD=${USER_PASSWORD?Variable USER_PASSWORD not set}
       - ENABLE_STEAM=${ENABLE_STEAM:-true}
       - STEAM_ARGS=${STEAM_ARGS:-"-silent"}
-      - ENABLE_SUNSHINE=${ENABLE_SUNSHINE:-false}
-      - SUNSHINE_USER=${SUNSHINE_USER:-admin}
-      - SUNSHINE_PASS=${SUNSHINE_PASS:-admin}
+      - ENABLE_SUNSHINE=${ENABLE_SUNSHINE:-true}
       - ENABLE_EVDEV_INPUTS=${ENABLE_EVDEV_INPUTS:-true}
       - NVIDIA_DRIVER_CAPABILITIES=${NVIDIA_DRIVER_CAPABILITIES:-all}
       - NVIDIA_VISIBLE_DEVICES=${NVIDIA_VISIBLE_DEVICES:-all}
