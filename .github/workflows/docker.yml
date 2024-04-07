@@ -50,19 +50,29 @@ jobs:
             org.opencontainers.image.licenses=Unlicense
             org.opencontainers.image.revision=${{ github.sha }}
 
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v5.3.0
+      # - name: Build and push Docker image
+      #   id: build-and-push
+      #   uses: docker/build-push-action@v5.3.0
+      #   with:
+      #     context: .
+      #     file: ./Dockerfile
+      #     platforms: ${{ matrix.platforms }}
+      #     push: ${{ github.event_name != 'pull_request' }}
+      #     tags: |
+      #       ${{ steps.meta.outputs.tags }}
+      #       ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+      #     labels: ${{ steps.meta.outputs.labels }}
+      #     cache-from: type=gha
+      #     cache-to: type=gha,mode=max
+      #     outputs: |
+      #       type=image,name=target,annotation-index.org.opencontainers.image.description=${{ steps.meta.outputs.labels.org.opencontainers.image.description }}
+
+      - uses: depot/build-push-action@v1
         with:
-          context: .
-          file: ./Dockerfile
-          platforms: ${{ matrix.platforms }}
-          push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ steps.meta.outputs.tags }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          outputs: |
-            type=image,name=target,annotation-index.org.opencontainers.image.description=${{ steps.meta.outputs.labels.org.opencontainers.image.description }}
+          push: true
+          load: true
+          project: w13rz4v2jg
