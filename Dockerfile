@@ -144,8 +144,7 @@ RUN echo "**** Configure flatpak ****" \
     && dpkg-statoverride --update --add root root 0755 /usr/bin/bwrap
 
 # Setup video streaming deps
-RUN echo "**** Update apt database ****" \
-    && apt-get update \
+RUN apt-get update \
     && echo "**** Install Intel media drivers and VAAPI ****" \
     && apt-get install -y --no-install-recommends \
         intel-media-va-driver-non-free \
@@ -160,9 +159,7 @@ RUN echo "**** Update apt database ****" \
         /tmp/*
 
 # Install tools for monitoring hardware
-RUN echo "**** Update apt database ****" \
-    && apt-get update \
-    && echo "**** Install useful HW monitoring tools ****" \
+RUN echo "**** Install useful HW monitoring tools ****" \
     && apt-get install -y --no-install-recommends \
         cpu-x \
         htop \
@@ -178,9 +175,7 @@ RUN echo "**** Update apt database ****" \
 
 # Install Sunshine
 COPY --from=lizardbyte/sunshine:v0.22.2-ubuntu-20.04 /sunshine.deb /usr/src/sunshine.deb
-RUN echo "**** Update apt database ****" \
-    && apt-get update \
-    && echo "**** Install Sunshine requirements ****" \
+RUN echo "**** Install Sunshine requirements ****" \
     && apt-get install -y --no-install-recommends \
         va-driver-all \
     && echo "**** Install Sunshine ****" \
@@ -195,8 +190,7 @@ RUN echo "**** Update apt database ****" \
         /tmp/*
 
 # Install Steam
-RUN echo "**** Update apt database ****" \
-    && dpkg --add-architecture i386 \
+RUN dpkg --add-architecture i386 \
     && apt-get update \
     && echo "**** Install Steam ****" \
     && apt-get install -y --no-install-recommends \
