@@ -248,7 +248,8 @@ RUN groupadd --gid $USER_GID $USER_NAME \
 && echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
 && chmod 0440 /etc/sudoers.d/$USER_NAME
 
-RUN bash /usr/bin/bootstrap.sh
+RUN mkdir -p ${USER_HOME}/.cache/log \
+    && bash /usr/bin/bootstrap.sh
 
 USER ${USER_NAME}
 
