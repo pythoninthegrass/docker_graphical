@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
+
+# import functions
+. /etc/cont-init.d/common.sh
+
 print_header "Configure Steam"
 
 steam_autostart_desktop="$(cat <<EOF
@@ -19,18 +24,18 @@ EOF
 )"
 
 if [ "${ENABLE_STEAM:-}" = "true" ]; then
-    if [ "${MODE}" == "s" ] | [ "${MODE}" == "secondary" ]; then
+    if [ "${MODE}" == "s" ] || [ "${MODE}" == "secondary" ]; then
         print_step_header "Enable Steam supervisor.d service"
-        sed -i 's|^autostart.*=.*$|autostart=true|' /etc/supervisor.d/steam.ini
+        sed -i 's|^autostart.*=.*$|autostart=true|' /etc/supervisor/supervisord.conf
     else
         print_step_header "Enable Steam auto-start script"
         mkdir -p "${USER_HOME:?}/.config/autostart"
         echo "${steam_autostart_desktop:?}" > "${USER_HOME:?}/.config/autostart/Steam.desktop"
-        sed -i 's|^autostart.*=.*$|autostart=false|' /etc/supervisor.d/steam.ini
+        sed -i 's|^autostart.*=.*$|autostart=false|' /etc/supervisor/supervisord.conf
     fi
 else
     print_step_header "Disable Steam service"
-    sed -i 's|^autostart.*=.*$|autostart=false|' /etc/supervisor.d/steam.ini
+    sed -i 's|^autostart.*=.*$|autostart=false|' /etc/supervisor/supervisord.conf
 fi
 
 echo -e "\e[34mDONE\e[0m"

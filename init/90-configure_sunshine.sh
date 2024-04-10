@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
+
+# import functions
+. /etc/cont-init.d/common.sh
+
 print_header "Configure Sunshine"
 
 if [ "${MODE}" != "s" ] && [ "${MODE}" != "secondary" ]; then
     if [ "${ENABLE_SUNSHINE:-}" = "true" ]; then
         print_step_header "Enable Sunshine server"
-        sed -i 's|^autostart.*=.*$|autostart=true|' /etc/supervisor.d/sunshine.ini
+        sed -i 's|^autostart.*=.*$|autostart=true|' /etc/supervisor/supervisord.conf
     else
         print_step_header "Disable Sunshine server"
     fi

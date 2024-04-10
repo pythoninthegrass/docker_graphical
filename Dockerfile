@@ -141,9 +141,9 @@ RUN apt-get update \
         htop \
         vainfo \
         vdpauinfo \
-    && apt-get clean autoclean -y \
-    && apt-get autoremove -y \
-    && rm -rf \
+        && apt-get clean autoclean -y \
+        && apt-get autoremove -y \
+        && rm -rf \
         /var/lib/apt/lists/* \
         /var/tmp/* \
         /tmp/*
@@ -189,17 +189,22 @@ RUN wget --no-check-certificate --no-cookies --quiet -O /usr/bin/dumb-init \
         git+https://github.com/Steam-Headless/dumb-udev.git@${DUMB_UDEV_VERSION}
 
 # copy scripts and configurations
-COPY ./bootstrap.sh /usr/bin/bootstrap.sh
+COPY ./entrypoint.sh /usr/bin/entrypoint.sh
 COPY ./init/ /etc/cont-init.d/
 COPY ./supervisord.conf /etc/supervisor/supervisord.conf
 
+# TODO: copy upstream ./overlay/usr/bin scripts here
+# ! cf. `spawnerr: can't find command '/usr/bin/start-sunshine.sh'`
+# Add FS overlay
+# COPY overlay /
+
 # create a non-root user
-ARG USER_UID=${USER_UID:-1000}
-ENV USER_UID=$USER_UID
-ENV USER_GID=$USER_UID
-ARG USER_NAME=${USER_NAME:-"appuser"}
-ENV USER_NAME=${USER_NAME}
-ENV USER_HOME=/home/${USER_NAME}
+ARG USER_UID="${USER_UID:-1000}"
+ENV USER_UID="$USER_UID"
+ENV USER_GID="$USER_UID"
+ARG USER_NAME="${USER_NAME:-appuser}"
+ENV USER_NAME="${USER_NAME}"
+ENV USER_HOME="/home/${USER_NAME}"
 
 RUN groupadd --gid $USER_GID $USER_NAME \
     && useradd --uid $USER_UID --gid $USER_GID -m -d $HOME $USER_NAME \
@@ -215,17 +220,18 @@ ENV NVIDIA_DRIVER_VERSION=${NVIDIA_DRIVER_VERSION}
 ENV UMASK=${UMASK:-000}
 ENV ENABLE_EVDEV_INPUTS=${ENABLE_EVDEV_INPUTS:-true}
 
-RUN bash /usr/bin/bootstrap.sh
+# RUN bash /usr/bin/entrypoint.sh
 
 WORKDIR ${USER_HOME}
 
 EXPOSE 22/tcp
 EXPOSE 3389/tcp
 
-USER ${USER_NAME}
+# USER ${USER_NAME}
 
-ENTRYPOINT [ "/usr/bin/supervisord" ]
-CMD ["-c", "/etc/supervisor/supervisord.conf"]
+# ENTRYPOINT [ "/usr/bin/supervisord" ]
+# CMD ["-c", "/etc/supervisor/supervisord.conf"]
+CMD [ "/usr/bin/entrypoint.sh" ]
 
 LABEL org.opencontainers.image.source=https://github.com/pythoninthegrass/docker_graphical
 LABEL org.opencontainers.image.description="Docker container with Firefox, SSH server, and RDP support"

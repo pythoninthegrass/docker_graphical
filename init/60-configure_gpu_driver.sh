@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC1091
+
+# import functions
+. /etc/cont-init.d/common.sh
+
 # Fech NVIDIA GPU device (if one exists)
 if [ "${NVIDIA_VISIBLE_DEVICES:-}" = "all" ]; then
     export gpu_select=$(nvidia-smi --format=csv --query-gpu=uuid 2> /dev/null | sed -n 2p)
@@ -46,8 +51,8 @@ function download_driver {
 }
 
 function install_nvidia_driver {
-    # Check here if the currently installed version matches using nvidia-settings
-    nvidia_settings_version=$(nvidia-settings --version 2> /dev/null | grep version | cut -d ' ' -f 4)
+    # Check here if the currently installed version matches
+    nvidia_settings_version=$(nvidia-smi --query-gpu=name,driver_version --format=csv,noheader 2> /dev/null | awk '{print $NF}')
     if [ "${nvidia_settings_version:-}X" != "${nvidia_host_driver_version:-}X" ]; then
         # Download the driver (if it does not yet exist locally)
         download_driver
@@ -146,28 +151,28 @@ function patch_nvidia_driver {
 }
 
 function install_deb_mesa {
-    if [ ! -f /tmp/init-mesa-libs-install.log ]; then
-        print_step_header "Enable i386 arch"
-        dpkg --add-architecture i386
-	if [ "${ENABLE_SID:-}" = "true" ]; then
-            print_step_header "Add Debian SID sources"
-            echo "deb http://deb.debian.org/debian/ sid main" > /etc/apt/sources.list
+	if [ ! -f /tmp/init-mesa-libs-install.log ]; then
+		print_step_header "Enable i386 arch"
+		sudo dpkg --add-architecture i386
+		if [ "${ENABLE_SID:-}" = "true" ]; then
+			print_step_header "Add Debian SID sources"
+			echo "deb http://deb.debian.org/debian/ sid main" | sudo tee /etc/apt/sources.list
+		fi
+		sudo apt-get update | sudo tee -a /tmp/init-mesa-libs-install.log
+		print_step_header "Install mesa vulkan drivers"
+		echo "" >> /tmp/init-mesa-libs-install.log
+		sudo apt-get install -y --no-install-recommends \
+			libvulkan1 \
+			libvulkan1:i386 \
+			mesa-vulkan-drivers \
+			mesa-vulkan-drivers:i386 \
+			mesa-utils \
+			mesa-utils-extra \
+			vulkan-tools \
+			| sudo tee -a /tmp/init-mesa-libs-install.log
+	else
+		print_step_header "Mesa has already been installed into this container"
 	fi
-        apt-get update &>> /tmp/init-mesa-libs-install.log
-        print_step_header "Install mesa vulkan drivers"
-        echo "" >> /tmp/init-mesa-libs-install.log
-        apt-get install -y --no-install-recommends \
-            libvulkan1 \
-            libvulkan1:i386 \
-            mesa-vulkan-drivers \
-            mesa-vulkan-drivers:i386 \
-            mesa-utils \
-            mesa-utils-extra \
-            vulkan-tools \
-            &>> /tmp/init-mesa-libs-install.log
-    else
-        print_step_header "Mesa has already been installed into this container"
-    fi
 }
 
 function install_amd_gpu_driver {
@@ -213,6 +218,7 @@ if [ "${amd_gpu_model:-}X" != "X" ]; then
 else
     print_header "No AMD device found"
 fi
+
 # NVIDIA GPU
 if [ "${nvidia_pci_address:-}X" != "X" ]; then
     print_header "Found NVIDIA device '${nvidia_gpu_name:?}'"
